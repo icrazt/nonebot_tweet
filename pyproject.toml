@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_tweet"
-version = "0.0.0"
+version = "0.0.1"
 description = "nonebot_plugin_tweet"
 readme = "README.md"
 requires-python = ">=3.9, <4.0"
