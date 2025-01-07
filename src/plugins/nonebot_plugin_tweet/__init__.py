@@ -12,7 +12,14 @@ __plugin_meta__ = PluginMetadata(
     name="nonebot_plugin_tweet",
     description="A NoneBot2 plugin to forward tweets",
     usage="Just send a tweet link and the bot will do the rest.",
+
+    type="application",
+
+    homepage="https://github.com/icrazt/nonebot_tweet",
+
     config=Config,
+
+    supported_adapters={"~onebot.v11"},
 )
 
 config = get_plugin_config(Config)
