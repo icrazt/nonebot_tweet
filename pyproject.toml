@@ -4,11 +4,18 @@ version = "0.1.0"
 description = "nonebot_tweet"
 readme = "README.md"
 requires-python = ">=3.9, <4.0"
+dependencies = [
+    "nonebot2",
+    "nonebot-adapter-onebot",
+    "httpx",
+    "beautifulsoup4",
+    "pydantic-settings",
+]
 
 [tool.nonebot]
 adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
-plugins = []
+# plugins = ["nonebot_plugin_tweet"] #这里不应该放已经放置在 src 中的插件
 plugin_dirs = ["src/plugins"]
 builtin_plugins = []
