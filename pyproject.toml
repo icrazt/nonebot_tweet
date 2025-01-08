@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_tweet"
-version = "0.0.2"
+version = "0.0.3"
 description = "nonebot_plugin_tweet"
 readme = "README.md"
 requires-python = ">=3.9, <4.0"
@@ -20,6 +20,26 @@ adapters = [
 plugin_dirs = ["src/plugins"]
 builtin_plugins = []
 
+
+[tool.poetry]
+name = "nonebot_plugin_tweet"
+version = "v2.9.0"
+description = "QQ机器人插件 | ReTweet Twitter"
+license = "MIT"
+authors = [
+  "crazt <i@crazt.moe>",
+]
+readme = "README.md"
+homepage = "https://github.com/icrazt/nonebot_tweet"
+repository = "https://github.com/icrazt/nonebot_tweet"
+documentation = "https://github.com/icrazt/nonebot_tweet"
+keywords = ["bot", "qq", "qqbot", "onebotv11", "onebot", "nonebot2", "nonebot", "twitter"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha"
+]
 packages = [
-    { include = "nonebot_plugin_tweet", from = "srcsrc/plugins" },
+    { include = "nonebot_plugin_tweet", from = "src/plugins" },
 ]
