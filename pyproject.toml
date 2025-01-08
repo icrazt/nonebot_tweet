@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_tweet"
-version = "0.0.4"
+version = "0.0.5"
 description = "nonebot_plugin_tweet"
 readme = "README.md"
 requires-python = ">=3.9, <4.0"
@@ -23,7 +23,7 @@ builtin_plugins = []
 
 [tool.poetry]
 name = "nonebot_plugin_tweet"
-version = "v2.9.0"
+version = "v0.0.5"
 description = "QQ机器人插件 | ReTweet Twitter"
 license = "MIT"
 authors = [
