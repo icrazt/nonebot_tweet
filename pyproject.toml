@@ -1,6 +1,6 @@
 [project]
 name = "nonebot_plugin_tweet"
-version = "0.0.3"
+version = "0.0.4"
 description = "nonebot_plugin_tweet"
 readme = "README.md"
 requires-python = ">=3.9, <4.0"
@@ -17,7 +17,7 @@ adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
 # plugins = ["nonebot_plugin_tweet"] #这里不应该放已经放置在 src 中的插件
-plugin_dirs = ["src/plugins"]
+plugin_dirs = ["src"]
 builtin_plugins = []
 
 
@@ -41,5 +41,5 @@ classifiers = [
     "Development Status :: 3 - Alpha"
 ]
 packages = [
-    { include = "nonebot_plugin_tweet", from = "src/plugins" },
+    { include = "nonebot_plugin_tweet", from = "src" },
 ]
