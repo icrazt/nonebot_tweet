@@ -1,16 +1,37 @@
-from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
-import os
-from dotenv import load_dotenv
+from typing import Optional
 
-load_dotenv()  # Load the .env file explicitly
+from pydantic import AnyHttpUrl, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Config(BaseSettings):
-    """Plugin Config Here"""
+    """Configuration for nonebot-plugin-tweet."""
 
-    rsshub_base_url: str = Field(...) # 使用占位符
-    rsshub_query_param: str = Field(...)
-    openai_api_base: str = Field(...)
-    openai_api_key: str = Field(...)
+    rsshub_base_url: Optional[AnyHttpUrl] = Field(
+        default="https://rsshub.app/twitter/user/",
+        description=(
+            "Base URL of the RSSHub Twitter route, e.g. https://rsshub.app/twitter/user/."
+        ),
+    )
+    rsshub_query_param: Optional[str] = Field(
+        default="",
+        description=(
+            "Optional query string appended to RSSHub requests, including leading '?' if needed."
+        ),
+    )
+    translate_target_language: Optional[str] = Field(
+        default="zh-Hans",
+        description=(
+            "Target language tag for tweet translation. Leave blank to disable translation."
+        ),
+    )
+    openai_api_base: Optional[str] = Field(
+        default=None,
+        description="OpenAI-compatible API base URL. Required when translation is enabled.",
+    )
+    openai_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenAI-compatible API key. Required when translation is enabled.",
+    )
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(extra="ignore")
