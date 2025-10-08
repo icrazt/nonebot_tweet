@@ -33,5 +33,9 @@ class Config(BaseSettings):
         default=None,
         description="OpenAI-compatible API key. Required when translation is enabled.",
     )
+    openai_model: Optional[str] = Field(
+        default="gemini-2.5-flash-lite",
+        description="Model to use for translation. Required when translation is enabled.",
+    )
 
     model_config = SettingsConfigDict(extra="ignore")

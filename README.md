@@ -42,6 +42,7 @@ nonebot.load_plugin("nonebot_plugin_tweet")
 | `TRANSLATE_TARGET_LANGUAGE` | `zh-Hans` | 翻译目标语言，留空代表禁用翻译 |
 | `OPENAI_API_BASE` | 未设置 | OpenAI 兼容接口地址，启用翻译时必填 |
 | `OPENAI_API_KEY` | 未设置 | OpenAI 兼容接口密钥，启用翻译时必填 |
+| `OPENAI_MODEL` | `gemini-2.5-flash-lite` | 用于翻译的模型名称，启用翻译时必填 |
 
 > 如果仅需转发原始内容，可将 `TRANSLATE_TARGET_LANGUAGE` 置空或不配置，同时无需填写 OpenAI 相关参数。
 

@@ -81,6 +81,7 @@ async def translate_text(
     *,
     api_base: Optional[str],
     api_key: Optional[str],
+    model: Optional[str],
 ) -> Optional[str]:
     """Translate text using an OpenAI-compatible API if configured."""
     if not text:
@@ -88,7 +89,7 @@ async def translate_text(
     if not target_language:
         logger.debug("Translation skipped: target language not configured")
         return None
-    if not api_base or not api_key:
+    if not api_base or not api_key or not model:
         logger.debug("Translation skipped: API credentials missing")
         return None
 
@@ -97,7 +98,7 @@ async def translate_text(
         "Authorization": f"Bearer {api_key}",
     }
     payload = {
-        "model": "gemini-2.0-flash-exp",
+        "model": model,
         "messages": [
             {"role": "system", "content": "You are a helpful assistant that translates text."},
             {
@@ -190,6 +191,7 @@ async def build_message(tweet_data: Dict[str, Any], user_name: str) -> Optional[
         config.translate_target_language,
         api_base=config.openai_api_base,
         api_key=config.openai_api_key,
+        model=config.openai_model,
     )
     if translated_text:
         message.append(MessageSegment.text(f"--------\n{translated_text}\n"))
