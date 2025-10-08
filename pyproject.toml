@@ -1,45 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "nonebot_plugin_tweet"
-version = "0.0.5"
-description = "nonebot_plugin_tweet"
+name = "nonebot-plugin-tweet"
+version = "0.1.1"
+description = "NoneBot2 plugin for forwarding tweets with optional translation support"
 readme = "README.md"
-requires-python = ">=3.9, <4.0"
-dependencies = [
-    "nonebot2",
-    "nonebot-adapter-onebot",
-    "httpx",
-    "beautifulsoup4",
-    "pydantic-settings",
+authors = [
+    { name = "crazt", email = "i@crazt.moe" }
 ]
+requires-python = ">=3.9, <4.0"
+keywords = ["bot", "qq", "nonebot", "onebot", "twitter"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Communications :: Chat",
+    "Topic :: Internet :: WWW/HTTP"
+]
+dependencies = [
+    "nonebot2>=2.4.0,<3.0.0",
+    "nonebot-adapter-onebot>=2.4.0,<3.0.0",
+    "httpx>=0.26.0,<1.0.0",
+    "beautifulsoup4>=4.12.0,<5.0.0",
+    "pydantic>=2.6.0,<3.0.0",
+    "pydantic-settings>=2.2.0,<3.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/icrazt/nonebot_tweet"
+Repository = "https://github.com/icrazt/nonebot_tweet"
+Issues = "https://github.com/icrazt/nonebot_tweet/issues"
+
+[project.entry-points."nonebot.plugins"]
+nonebot_plugin_tweet = "nonebot_plugin_tweet"
 
 [tool.nonebot]
 adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
-# plugins = ["nonebot_plugin_tweet"] #这里不应该放已经放置在 src 中的插件
 plugin_dirs = ["src"]
 builtin_plugins = []
 
+[tool.setuptools]
+package-dir = { "" = "src" }
 
-[tool.poetry]
-name = "nonebot_plugin_tweet"
-version = "v0.0.5"
-description = "QQ机器人插件 | ReTweet Twitter"
-license = "MIT"
-authors = [
-  "crazt <i@crazt.moe>",
-]
-readme = "README.md"
-homepage = "https://github.com/icrazt/nonebot_tweet"
-repository = "https://github.com/icrazt/nonebot_tweet"
-documentation = "https://github.com/icrazt/nonebot_tweet"
-keywords = ["bot", "qq", "qqbot", "onebotv11", "onebot", "nonebot2", "nonebot", "twitter"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Development Status :: 3 - Alpha"
-]
-packages = [
-    { include = "nonebot_plugin_tweet", from = "src" },
-]
+[tool.setuptools.packages.find]
+where = ["src"]
