@@ -84,43 +84,59 @@ async def translate_text(
     model: Optional[str],
 ) -> Optional[str]:
     """Translate text using an OpenAI-compatible API if configured."""
-    if not text:
-        return None
-    if not target_language:
-        logger.debug("Translation skipped: target language not configured")
-        return None
-    if not api_base or not api_key or not model:
-        logger.debug("Translation skipped: API credentials missing")
+    if not text or not target_language or not api_base or not api_key or not model:
+        logger.debug("Translation skipped: missing text, target language, or API configuration.")
         return None
 
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}",
     }
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": "You are a helpful assistant that translates text."},
-            {
-                "role": "user",
-                "content": f"只需要给出翻译不需要解释, 将以下文本翻译成{target_language}：\n\n{text}",
-            },
-        ],
-    }
+    api_url = f"{api_base.rstrip('/')}/v1/chat/completions"
 
+    # 1. Detect language
     try:
-        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0), follow_redirects=True) as client:
-            response = await client.post(f"{api_base.rstrip('/')}/v1/chat/completions", headers=headers, json=payload)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            detect_payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a language detection assistant. Respond with only the language code (e.g., en, zh-Hans, ja).",
+                    },
+                    {"role": "user", "content": text},
+                ],
+            }
+            response = await client.post(api_url, headers=headers, json=detect_payload)
             response.raise_for_status()
-    except httpx.HTTPError as exc:
-        logger.warning(f"Translation request failed: {exc}")
-        return None
+            detected_language = response.json()["choices"][0]["message"]["content"].strip()
+            logger.debug(f"Detected language: {detected_language}")
 
+            if detected_language.lower() == target_language.lower():
+                logger.info(f"Skipping translation: Text is already in the target language ({target_language}).")
+                return None
+    except (httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
+        logger.warning(f"Language detection failed, proceeding with translation. Error: {exc}")
+
+    # 2. Translate if necessary
     try:
-        translated_text = response.json()["choices"][0]["message"]["content"].strip()
-        return translated_text
-    except (KeyError, IndexError, TypeError) as exc:
-        logger.warning(f"Unexpected translation response format: {exc}")
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            translate_payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant that translates text."},
+                    {
+                        "role": "user",
+                        "content": f"只需要给出翻译不需要解释, 将以下文本翻译成{target_language}：\n\n{text}",
+                    },
+                ],
+            }
+            response = await client.post(api_url, headers=headers, json=translate_payload)
+            response.raise_for_status()
+            translated_text = response.json()["choices"][0]["message"]["content"].strip()
+            return translated_text
+    except (httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
+        logger.warning(f"Translation request failed: {exc}")
         return None
 
 
