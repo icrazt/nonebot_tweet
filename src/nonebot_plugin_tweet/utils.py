@@ -196,21 +196,21 @@ async def build_message(tweet_data: Dict[str, Any], user_name: str) -> Optional[
     author = tweet_data.get("author")
 
     if formatted_date and author:
-        message.append(MessageSegment.text(f"{author}@{user_name} 🕒{formatted_date}\n"))
+        message.append(MessageSegment.text(f"{author}@{user_name} {formatted_date}\n"))
 
     text = tweet_data.get("text")
     if text:
-        message.append(MessageSegment.text(f"{text}\n"))
-
-    translated_text = await translate_text(
-        text,
-        config.translate_target_language,
-        api_base=config.openai_api_base,
-        api_key=config.openai_api_key,
-        model=config.openai_model,
-    )
-    if translated_text:
-        message.append(MessageSegment.text(f"--------\n{translated_text}\n"))
+        translated_text = await translate_text(
+            text,
+            config.translate_target_language,
+            api_base=config.openai_api_base,
+            api_key=config.openai_api_key,
+            model=config.openai_model,
+        )
+        if translated_text:
+            message.append(MessageSegment.text(f"{text}\n---\n{translated_text}\n"))
+        else:
+            message.append(MessageSegment.text(f"{text}\n"))
 
     for image_url in tweet_data.get("images", []):
         message.append(MessageSegment.image(image_url))
@@ -231,7 +231,7 @@ async def build_message_original(tweet_data: Dict[str, Any], user_name: str) -> 
     author = tweet_data.get("author")
 
     if formatted_date and author:
-        message.append(MessageSegment.text(f"{author}@{user_name} 🕒{formatted_date}\n"))
+        message.append(MessageSegment.text(f"{author}@{user_name} {formatted_date}\n"))
 
     text = tweet_data.get("text")
     if text:
