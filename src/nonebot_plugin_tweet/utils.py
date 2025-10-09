@@ -53,7 +53,7 @@ async def fetch_tweet_data(rss_url: str, original_link: str) -> Optional[Dict[st
         if not guid_match:
             continue
         guid_user, guid_tweet_id = guid_match.groups()
-        if guid_user != original_user or guid_tweet_id != original_tweet_id:
+        if guid_user.lower() != original_user.lower() or guid_tweet_id != original_tweet_id:
             continue
 
         description_el = item.find("description")
