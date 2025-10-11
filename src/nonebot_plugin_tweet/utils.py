@@ -241,3 +241,35 @@ async def build_message_original(tweet_data: Dict[str, Any], user_name: str) -> 
         message.append(MessageSegment.image(image_url))
 
     return message if len(message) > 0 else None
+
+
+async def fetch_booth_data(item_id: str) -> Optional[Dict[str, Any]]:
+    """Fetch and parse booth data from booth.pm API."""
+    api_url = f"https://booth.pm/zh-cn/items/{item_id}.json"
+    logger.debug(f"Fetching BOOTH data from: {api_url}")
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20.0), follow_redirects=True) as client:
+            response = await client.get(api_url)
+            response.raise_for_status()
+            return response.json()
+    except httpx.HTTPError as exc:
+        logger.warning(f"HTTP error fetching BOOTH item: {exc}")
+        return None
+    except Exception as exc:
+        logger.warning(f"Error parsing BOOTH item JSON: {exc}")
+        return None
+
+
+async def build_booth_message(booth_data: Dict[str, Any]) -> Optional[Message]:
+    """Build a message from BOOTH data."""
+    message = Message()
+    name = booth_data.get("name")
+    if name:
+        message.append(MessageSegment.text(f"{name}\n"))
+
+    images = booth_data.get("images", [])
+    for image in images:
+        if image_url := image.get("original"):
+            message.append(MessageSegment.image(image_url))
+
+    return message if len(message) > 0 else None

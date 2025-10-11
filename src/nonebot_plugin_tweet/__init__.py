@@ -13,9 +13,11 @@ from nonebot.plugin import PluginMetadata
 
 from .config import Config
 from .utils import (
+    build_booth_message,
     build_message,
     build_message_content_only,
     build_message_original,
+    fetch_booth_data,
     fetch_tweet_data,
 )
 
@@ -38,15 +40,27 @@ twitter_link_pattern = re.compile(
     re.IGNORECASE,
 )
 
+booth_link_pattern = re.compile(
+    r"https?://(?:[a-zA-Z0-9-]+\.)?booth\.pm/(?:[a-z\-]+/)?items/(\d+)",
+    re.IGNORECASE,
+)
+
 tweet_forwarder = on_message(priority=5, block=False)
 
 
 @tweet_forwarder.handle()
-async def handle_tweet_link(_event: Event, message: str = EventPlainText()) -> None:
+async def handle_message(event: Event, message: str = EventPlainText()) -> None:
     text = message.strip()
     if not text:
         return
 
+    if await handle_tweet_link(text, event):
+        return
+    if await handle_booth_link(text):
+        return
+
+
+async def handle_tweet_link(text: str, event: Event) -> bool:
     command: Optional[str] = None
     lowered = text.lower()
     if lowered.startswith("c ") or lowered.startswith("content "):
@@ -58,7 +72,7 @@ async def handle_tweet_link(_event: Event, message: str = EventPlainText()) -> N
 
     match = twitter_link_pattern.search(text)
     if not match:
-        return
+        return False
 
     if not config.rsshub_base_url:
         logger.warning("RSSHub base URL is not configured; skip tweet handling.")
@@ -103,3 +117,24 @@ async def handle_tweet_link(_event: Event, message: str = EventPlainText()) -> N
         except Exception as exc:
             logger.exception("Unexpected error sending video %s", video_url)
             await tweet_forwarder.send(f"发送视频失败：{video_url}")
+
+    return True
+
+
+async def handle_booth_link(text: str) -> bool:
+    match = booth_link_pattern.search(text)
+    if not match:
+        return False
+
+    item_id = match.group(1)
+    booth_data = await fetch_booth_data(item_id)
+    if not booth_data:
+        await tweet_forwarder.finish("未能获取该 BOOTH 商品信息，请稍后再试。")
+
+    message_to_send = await build_booth_message(booth_data)
+    if message_to_send:
+        await tweet_forwarder.send(message_to_send)
+    else:
+        logger.info("BOOTH item %s did not contain sendable text or images", item_id)
+
+    return True
