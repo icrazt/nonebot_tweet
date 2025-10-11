@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nonebot-plugin-tweet"
-version = "0.2.0"
+version = "0.2.1"
 description = "NoneBot2 plugin for forwarding tweets with optional translation support"
 readme = "README.md"
 authors = [
