@@ -6,7 +6,7 @@ from typing import Optional
 
 import httpx
 from nonebot import get_plugin_config, on_message
-from nonebot.adapters.onebot.v11 import Event, MessageSegment
+from nonebot.adapters.onebot.v11 import Bot, Event, GroupMessageEvent, MessageSegment
 from nonebot.log import logger
 from nonebot.params import EventPlainText
 from nonebot.plugin import PluginMetadata
@@ -41,7 +41,7 @@ twitter_link_pattern = re.compile(
 )
 
 booth_link_pattern = re.compile(
-    r"https?://(?:[a-zA-Z0-9-]+\.)?booth\.pm/(?:[a-z\-]+/)?items/(\d+)",
+    r"https://(?:[a-zA-Z0-9-]+\.)?booth\.pm/(?:[a-z\-]+/)?items/(\d+)",
     re.IGNORECASE,
 )
 
@@ -49,14 +49,14 @@ tweet_forwarder = on_message(priority=5, block=False)
 
 
 @tweet_forwarder.handle()
-async def handle_message(event: Event, message: str = EventPlainText()) -> None:
+async def handle_message(bot: Bot, event: Event, message: str = EventPlainText()) -> None:
     text = message.strip()
     if not text:
         return
 
     if await handle_tweet_link(text, event):
         return
-    if await handle_booth_link(text):
+    if await handle_booth_link(bot, event, text):
         return
 
 
@@ -121,7 +121,7 @@ async def handle_tweet_link(text: str, event: Event) -> bool:
     return True
 
 
-async def handle_booth_link(text: str) -> bool:
+async def handle_booth_link(bot: Bot, event: Event, text: str) -> bool:
     match = booth_link_pattern.search(text)
     if not match:
         return False
@@ -132,9 +132,28 @@ async def handle_booth_link(text: str) -> bool:
         await tweet_forwarder.finish("未能获取该 BOOTH 商品信息，请稍后再试。")
 
     message_to_send = await build_booth_message(booth_data)
-    if message_to_send:
+    if not message_to_send:
+        logger.info("BOOTH item %s did not contain sendable text or images", item_id)
+        return True
+
+    images = booth_data.get("images", [])
+    if len(images) < 5:
         await tweet_forwarder.send(message_to_send)
     else:
-        logger.info("BOOTH item %s did not contain sendable text or images", item_id)
+        if not isinstance(event, GroupMessageEvent):
+            await tweet_forwarder.send(message_to_send)
+            return True
+
+        nodes = [
+            {
+                "type": "node",
+                "data": {
+                    "name": "BOOTH",
+                    "uin": bot.self_id,
+                    "content": message_to_send,
+                },
+            }
+        ]
+        await bot.send_group_forward_msg(group_id=event.group_id, messages=nodes)
 
     return True
