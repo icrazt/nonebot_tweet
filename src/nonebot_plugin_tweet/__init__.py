@@ -6,7 +6,13 @@ from typing import Optional
 
 import httpx
 from nonebot import get_plugin_config, on_message
-from nonebot.adapters.onebot.v11 import Bot, Event, GroupMessageEvent, MessageSegment
+from nonebot.adapters.onebot.v11 import (
+    Bot,
+    Event,
+    GroupMessageEvent,
+    Message,
+    MessageSegment,
+)
 from nonebot.log import logger
 from nonebot.params import EventPlainText
 from nonebot.plugin import PluginMetadata
@@ -140,6 +146,13 @@ async def handle_booth_link(bot: Bot, event: Event, text: str) -> bool:
     if len(images) < 5:
         await tweet_forwarder.send(message_to_send)
     else:
+        if name := booth_data.get("name"):
+            first_message = Message()
+            first_message.append(MessageSegment.text(f"{name}\n"))
+            if images and (image_url := images[0].get("original")):
+                first_message.append(MessageSegment.image(image_url))
+            await tweet_forwarder.send(first_message)
+
         if not isinstance(event, GroupMessageEvent):
             await tweet_forwarder.send(message_to_send)
             return True
