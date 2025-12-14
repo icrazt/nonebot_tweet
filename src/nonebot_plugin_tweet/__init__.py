@@ -93,7 +93,7 @@ async def handle_tweet_link(text: str, event: Event) -> bool:
     if user_name.lower() == "i":
         resolved = await resolve_twitter_link(tweet_id)
         if not resolved:
-            await tweet_forwarder.finish("未能解析推文链接，请稍后再试。")
+            await tweet_forwarder.finish("未能解析推文链接 ")
         user_name, original_link = resolved
 
     base_url = str(config.rsshub_base_url).rstrip('/')
@@ -104,7 +104,7 @@ async def handle_tweet_link(text: str, event: Event) -> bool:
 
     tweet_data = await fetch_tweet_data(rss_url, original_link)
     if not tweet_data:
-        await tweet_forwarder.finish("未能获取该推文，请稍后再试。")
+        await tweet_forwarder.finish("未能获取该推文 ")
 
     if command == "content":
         message_to_send = await build_message_content_only(tweet_data, user_name)
@@ -154,7 +154,7 @@ async def handle_booth_link(bot: Bot, event: Event, text: str) -> bool:
     item_id = match.group(1)
     booth_data = await fetch_booth_data(item_id)
     if not booth_data:
-        await tweet_forwarder.finish("未能获取该 BOOTH 商品信息，请稍后再试。")
+        await tweet_forwarder.finish("未能获取该 BOOTH 商品信息 ")
 
     message_to_send = await build_booth_message(booth_data)
     if not message_to_send:
