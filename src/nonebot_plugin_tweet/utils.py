@@ -227,17 +227,7 @@ async def build_message(tweet_data: Dict[str, Any], user_name: str) -> Optional[
 
     text = tweet_data.get("text")
     if text:
-        translated_text = await translate_text(
-            text,
-            config.translate_target_language,
-            api_base=config.openai_api_base,
-            api_key=config.openai_api_key,
-            model=config.openai_model,
-        )
-        if translated_text:
-            message.append(MessageSegment.text(f"{text}\n---\n{translated_text}\n"))
-        else:
-            message.append(MessageSegment.text(f"{text}\n"))
+        message.append(MessageSegment.text(f"{text}\n"))
 
     for image_url in tweet_data.get("images", []):
         message.append(MessageSegment.image(image_url))

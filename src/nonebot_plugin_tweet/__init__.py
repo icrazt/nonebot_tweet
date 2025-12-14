@@ -26,6 +26,7 @@ from .utils import (
     fetch_booth_data,
     fetch_tweet_data,
     resolve_twitter_link,
+    translate_text,
 )
 
 __all__ = ("tweet_forwarder",)
@@ -116,6 +117,17 @@ async def handle_tweet_link(text: str, event: Event) -> bool:
         await tweet_forwarder.send(message_to_send)
     else:
         logger.info("Tweet %s did not contain sendable text or images", original_link)
+
+    if not command and (text_content := tweet_data.get("text")):
+        translated_text = await translate_text(
+            text_content,
+            config.translate_target_language,
+            api_base=config.openai_api_base,
+            api_key=config.openai_api_key,
+            model=config.openai_model,
+        )
+        if translated_text:
+            await tweet_forwarder.send(MessageSegment.text(translated_text))
 
     for video_url in tweet_data.get("videos", []):
         try:
