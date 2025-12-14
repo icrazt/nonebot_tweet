@@ -39,6 +39,7 @@ __plugin_meta__ = PluginMetadata(
     homepage="https://github.com/icrazt/nonebot_tweet",
     config=Config,
     supported_adapters={"~onebot.v11"},
+    extra={"version": "0.3.0"},
 )
 
 config = get_plugin_config(Config)
