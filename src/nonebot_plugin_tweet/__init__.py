@@ -25,6 +25,7 @@ from .utils import (
     build_message_original,
     fetch_booth_data,
     fetch_tweet_data,
+    resolve_twitter_link,
 )
 
 __all__ = ("tweet_forwarder",)
@@ -87,6 +88,12 @@ async def handle_tweet_link(text: str, event: Event) -> bool:
     user_name = match.group(1)
     tweet_id = match.group(2)
     original_link = match.group(0)
+
+    if user_name.lower() == "i":
+        resolved = await resolve_twitter_link(tweet_id)
+        if not resolved:
+            await tweet_forwarder.finish("未能解析推文链接，请稍后再试。")
+        user_name, original_link = resolved
 
     base_url = str(config.rsshub_base_url).rstrip('/')
     query = config.rsshub_query_param or ''

@@ -75,6 +75,33 @@ async def fetch_tweet_data(rss_url: str, original_link: str) -> Optional[Dict[st
     return None
 
 
+async def resolve_twitter_link(tweet_id: str) -> Optional[tuple[str, str]]:
+    """Resolve shortened t.co or new mobile x.com/i/ web links using vxtwitter API."""
+    api_url = f"https://api.vxtwitter.com/i/status/{tweet_id}"
+    logger.debug(f"Resolving tweet link via vxtwitter: {api_url}")
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(20.0), follow_redirects=True) as client:
+            response = await client.get(api_url)
+            response.raise_for_status()
+            data = response.json()
+
+            tweet_url = data.get("tweetURL")
+            screen_name = data.get("user_screen_name")
+
+            if tweet_url and screen_name:
+                return screen_name, tweet_url
+            else:
+                logger.warning(f"vxtwitter response missing expected fields: {data}")
+                return None
+
+    except httpx.HTTPError as exc:
+        logger.warning(f"HTTP error resolving tweet link: {exc}")
+        return None
+    except Exception as exc:
+        logger.warning(f"Error parsing vxtwitter response: {exc}")
+        return None
+
+
 async def translate_text(
     text: Optional[str],
     target_language: Optional[str],
